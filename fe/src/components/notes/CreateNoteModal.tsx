@@ -239,258 +239,260 @@ export default function CreateNoteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] max-h-[85vh] w-full">
-        <DialogHeader>
+      <DialogContent className="max-w-[90vw] max-h-[85vh] w-full overflow-y-auto">
+        <DialogHeader className="sticky top-0 z-50 bg-background pb-2 border-b">
           <DialogTitle>Create New Note</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              placeholder="Enter note title"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="body">Content</Label>
-            <Textarea
-              id="body"
-              value={formData.body}
-              onChange={(e) =>
-                setFormData({ ...formData, body: e.target.value })
-              }
-              placeholder="Enter note content"
-              className="min-h-[200px]"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Share with users</Label>
-            <div className="relative">
+        <div className="overflow-y-auto py-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
               <Input
-                value={searchQuery}
-                onChange={handleUserSearch}
-                placeholder="Search users by username or email"
-                className="pr-8"
-              />
-              <Search
-                className={`h-4 w-4 absolute right-2 top-3 ${
-                  isSearching
-                    ? "animate-spin text-primary"
-                    : "text-muted-foreground"
-                }`}
+                id="title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                placeholder="Enter note title"
+                required
               />
             </div>
 
-            {searchQuery && userSearchResults.length > 0 && (
-              <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg max-h-48 overflow-auto">
-                {userSearchResults.map((user, index) => (
-                  <div
-                    key={`${user.id}-${index}`}
-                    className="w-full px-4 py-2 hover:bg-muted cursor-pointer"
-                    onClick={() => handleAddUser(user)}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium">{user.username}</span>
-                      <span className="text-muted-foreground text-xs truncate">
-                        {user.email}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Selected Users Display */}
-            {selectedUsers.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2 p-2 bg-muted/30 rounded-lg">
-                {selectedUsers.map((shared, index) => (
-                  <div
-                    key={`${shared.id}-${index}`}
-                    className="flex items-center gap-2 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
-                  >
-                    <span className="font-medium">{shared.username}</span>
-                    <select
-                      value={shared.permission}
-                      onChange={(e) =>
-                        handlePermissionChange(
-                          shared.id,
-                          shared.username,
-                          e.target.value as "view" | "edit"
-                        )
-                      }
-                      className="bg-transparent border-none text-xs outline-none"
-                    >
-                      <option value="view">View</option>
-                      <option value="edit">Edit</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveUser(shared.id)}
-                      className="hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Categories</Label>
-            <Select onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Select categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={category.id}
-                      className="flex items-center gap-2"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                          />
-                          <span>{category.name}</span>
-                        </div>
-                        {selectedCategories.includes(category.id) && (
-                          <Check className="h-4 w-4 text-primary" />
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            {selectedCategories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3 p-2 bg-muted/30 rounded-lg">
-                {selectedCategories.map((id) => {
-                  const category = categories.find((c) => c.id === id);
-                  return (
-                    category && (
-                      <div
-                        key={id}
-                        className="flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors"
-                        style={{
-                          backgroundColor: category.color,
-                          color: "#ffffff",
-                        }}
-                      >
-                        <span>{category.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleCategoryChange(id)}
-                          className="ml-1 text-white hover:text-red-200"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    )
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Attachments</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                onChange={handleFileChange}
-                className="hidden"
-                id="file-upload"
-                multiple
-                accept="image/*,.pdf,.doc,.docx,.txt"
+            <div className="space-y-2">
+              <Label htmlFor="body">Content</Label>
+              <Textarea
+                id="body"
+                value={formData.body}
+                onChange={(e) =>
+                  setFormData({ ...formData, body: e.target.value })
+                }
+                placeholder="Enter note content"
+                className="min-h-[200px]"
+                required
               />
-              <Label
-                htmlFor="file-upload"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 cursor-pointer"
-              >
-                <Upload className="h-4 w-4" />
-                Add Files
-              </Label>
-              <span className="text-xs text-muted-foreground">
-                Maximum file size: 1MB
-              </span>
             </div>
 
-            {fileError && (
-              <p className="text-xs text-destructive mt-1">{fileError}</p>
-            )}
-
-            {attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2 p-2 bg-muted/30 rounded-lg">
-                {attachments.map((file, index) => (
-                  <div
-                    key={`${file.name}-${index}`}
-                    className="flex items-center gap-2 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
-                  >
-                    <FileText className="h-3 w-3" />
-                    <span className="font-medium truncate max-w-[150px]">
-                      {file.name}
-                    </span>
-                    <span className="text-muted-foreground">
-                      ({Math.round(file.size / 1024)}KB)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveFile(index)}
-                      className="hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {NOTE_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  type="button"
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    formData.color === color.value
-                      ? "border-black dark:border-white scale-110"
-                      : "border-transparent hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  onClick={() =>
-                    setFormData({ ...formData, color: color.value })
-                  }
-                  title={color.label}
+            <div className="space-y-2">
+              <Label>Share with users</Label>
+              <div className="relative">
+                <Input
+                  value={searchQuery}
+                  onChange={handleUserSearch}
+                  placeholder="Search users by username or email"
+                  className="pr-8"
                 />
-              ))}
-            </div>
-          </div>
+                <Search
+                  className={`h-4 w-4 absolute right-2 top-3 ${
+                    isSearching
+                      ? "animate-spin text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                />
+              </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Note"}
-            </Button>
-          </div>
-        </form>
+              {searchQuery && userSearchResults.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full bg-background border rounded-md shadow-lg max-h-48 overflow-auto">
+                  {userSearchResults.map((user, index) => (
+                    <div
+                      key={`${user.id}-${index}`}
+                      className="w-full px-4 py-2 hover:bg-muted cursor-pointer"
+                      onClick={() => handleAddUser(user)}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium">{user.username}</span>
+                        <span className="text-muted-foreground text-xs truncate">
+                          {user.email}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected Users Display */}
+              {selectedUsers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2 p-2 bg-muted/30 rounded-lg">
+                  {selectedUsers.map((shared, index) => (
+                    <div
+                      key={`${shared.id}-${index}`}
+                      className="flex items-center gap-2 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+                    >
+                      <span className="font-medium">{shared.username}</span>
+                      <select
+                        value={shared.permission}
+                        onChange={(e) =>
+                          handlePermissionChange(
+                            shared.id,
+                            shared.username,
+                            e.target.value as "view" | "edit"
+                          )
+                        }
+                        className="bg-transparent border-none text-xs outline-none"
+                      >
+                        <option value="view">View</option>
+                        <option value="edit">Edit</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUser(shared.id)}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Categories</Label>
+              <Select onValueChange={handleCategoryChange}>
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder="Select categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {categories.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id}
+                        className="flex items-center gap-2"
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: category.color }}
+                            />
+                            <span>{category.name}</span>
+                          </div>
+                          {selectedCategories.includes(category.id) && (
+                            <Check className="h-4 w-4 text-primary" />
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              {selectedCategories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3 p-2 bg-muted/30 rounded-lg">
+                  {selectedCategories.map((id) => {
+                    const category = categories.find((c) => c.id === id);
+                    return (
+                      category && (
+                        <div
+                          key={id}
+                          className="flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors"
+                          style={{
+                            backgroundColor: category.color,
+                            color: "#ffffff",
+                          }}
+                        >
+                          <span>{category.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCategoryChange(id)}
+                            className="ml-1 text-white hover:text-red-200"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Attachments</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                />
+                <Label
+                  htmlFor="file-upload"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 cursor-pointer"
+                >
+                  <Upload className="h-4 w-4" />
+                  Add Files
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  Maximum file size: 1MB
+                </span>
+              </div>
+
+              {fileError && (
+                <p className="text-xs text-destructive mt-1">{fileError}</p>
+              )}
+
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2 p-2 bg-muted/30 rounded-lg">
+                  {attachments.map((file, index) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex items-center gap-2 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+                    >
+                      <FileText className="h-3 w-3" />
+                      <span className="font-medium truncate max-w-[150px]">
+                        {file.name}
+                      </span>
+                      <span className="text-muted-foreground">
+                        ({Math.round(file.size / 1024)}KB)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Color</Label>
+              <div className="flex flex-wrap gap-2">
+                {NOTE_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                      formData.color === color.value
+                        ? "border-black dark:border-white scale-110"
+                        : "border-transparent hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                    onClick={() =>
+                      setFormData({ ...formData, color: color.value })
+                    }
+                    title={color.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Creating..." : "Create Note"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
